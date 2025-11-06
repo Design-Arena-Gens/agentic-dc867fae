@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  balance   Float    @default(100.0)
+  createdAt DateTime @default(now())
+  seats     Seat[]
+}
+
+model Lobby {
+  id        String   @id @default(uuid())
+  entryFee  Float
+  createdAt DateTime @default(now())
+  games     Game[]
+}
+
+model Game {
+  id            String   @id @default(uuid())
+  lobbyId       String
+  lobby         Lobby    @relation(fields: [lobbyId], references: [id])
+  gameNumber    Int
+  status        String   @default("waiting")
+  masterCard    String?
+  seed          Int?
+  calledNumbers String   @default("")
+  prizePool     Float    @default(0)
+  winnerId      String?
+  startTime     DateTime?
+  interval      Int      @default(5000)
+  createdAt     DateTime @default(now())
+  seats         Seat[]
+}
+
+model Seat {
+  id           String   @id @default(uuid())
+  gameId       String
+  game         Game     @relation(fields: [gameId], references: [id])
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  seatNumber   Int
+  markedCells  String   @default("")
+  createdAt    DateTime @default(now())
+}
